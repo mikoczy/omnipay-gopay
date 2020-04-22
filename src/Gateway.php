@@ -6,12 +6,16 @@ use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\GoPay\Message\AccessTokenRequest;
 use Omnipay\GoPay\Message\AccessTokenResponse;
+use Omnipay\GoPay\Message\CaptureAuthorizationRequest;
+use Omnipay\GoPay\Message\CaptureAuthorizationResponse;
 use Omnipay\GoPay\Message\PurchaseRequest;
 use Omnipay\GoPay\Message\PurchaseResponse;
 use Omnipay\GoPay\Message\RecurrenceRequest;
 use Omnipay\GoPay\Message\CancelRecurrenceRequest;
 use Omnipay\GoPay\Message\StatusRequest;
 use Omnipay\GoPay\Message\Notification;
+use Omnipay\GoPay\Message\VoidAuthorizationRequest;
+use Omnipay\GoPay\Message\VoidAuthorizationResponse;
 
 /**
  * GoPay payment gateway
@@ -76,14 +80,38 @@ class Gateway extends AbstractGateway
     }
 
     /**
+     * @param string $scope
+     * @param string $grantType
      * @return AccessTokenResponse
      */
-    public function getAccessToken()
+    public function getAccessToken($scope = 'payment-create', $grantType = 'client_credentials')
     {
         /** @var AccessTokenRequest $request */
-        $request = parent::createRequest(AccessTokenRequest::class, $this->getParameters());
+        $request = parent::createRequest(AccessTokenRequest::class, array_merge($this->getParameters(), [
+            'scope' => $scope,
+            'grantType' => $grantType,
+        ]));
         $response = $request->send();
         return $response;
+    }
+
+    /**
+     * @param array $options
+     * @return PurchaseResponse
+     */
+    public function authorize(array $options = array())
+    {
+        $options['purchaseData']['preauthorization'] = 'true';
+        return $this->purchase($options);
+    }
+
+    /**
+     * @param array $parameters
+     * @return PurchaseResponse
+     */
+    public function completeAuthorize(array $parameters = array())
+    {
+        return $this->completePurchase($parameters);
     }
 
     /**
@@ -146,6 +174,29 @@ class Gateway extends AbstractGateway
         return $response;
     }
 
+    /**
+     * @param array $options
+     * @return CaptureAuthorizationResponse
+     */
+    public function capture(array $options = array())
+    {
+        $this->setToken($this->getAccessToken('payment-all')->getToken());
+        $request = parent::createRequest(CaptureAuthorizationRequest::class, $options);
+        $response = $request->send();
+        return $response;
+    }
+
+    /**
+     * @param array $options
+     * @return VoidAuthorizationResponse
+     */
+    public function voidAuthorization(array $options = array())
+    {
+        $this->setToken($this->getAccessToken('payment-all')->getToken());
+        $request = parent::createRequest(VoidAuthorizationRequest::class, $options);
+        $response = $request->send();
+        return $response;
+    }
 
     public function acceptNotification()
     {
