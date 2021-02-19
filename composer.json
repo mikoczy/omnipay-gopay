@@ -1,5 +1,5 @@
 {
-  "name": "bileto/omnipay-gopay",
+  "name": "mikoczy/omnipay-gopay",
   "type": "library",
   "description": "GoPay gateway for Omnipay payment processing library",
   "keywords": [
