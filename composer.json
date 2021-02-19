@@ -27,6 +27,7 @@
     "psr-4": { "Omnipay\\GoPay\\" : "src/" }
   },
   "require": {
+    "ext-json": "*",
     "omnipay/common": "^3.0"
   },
   "require-dev": {

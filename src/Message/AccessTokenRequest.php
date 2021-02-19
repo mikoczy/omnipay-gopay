@@ -6,6 +6,10 @@ use Omnipay\Common\Message\AbstractRequest;
 
 class AccessTokenRequest extends AbstractRequest
 {
+    private $data = [
+        'scope' => 'payment-create',
+        'grant_type' => 'client_credentials',
+    ];
 
     public function setClientId($clientId)
     {
@@ -53,10 +57,7 @@ class AccessTokenRequest extends AbstractRequest
      */
     public function getData()
     {
-        return [
-            'scope' => 'payment-create',
-            'grant_type' => 'client_credentials',
-        ];
+        return $this->data;
     }
 
     /**
@@ -65,5 +66,21 @@ class AccessTokenRequest extends AbstractRequest
     public function setApiUrl($apiUrl)
     {
         $this->setParameter('apiUrl', $apiUrl);
+    }
+
+    /**
+     * @param string $scope
+     */
+    public function setScope($scope)
+    {
+        $this->data['scope'] = $scope;
+    }
+
+    /**
+     * @param string $grantType
+     */
+    public function setGrantType($grantType)
+    {
+        $this->data['grant_type'] = $grantType;
     }
 }
